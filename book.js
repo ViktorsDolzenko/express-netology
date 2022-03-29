@@ -9,6 +9,7 @@ class Book {
                     favorite= "",
                     fileCover= "",
                     fileName= "",
+                    fileBook= "",
                     id=  uuidv4(),
                 ) {
         this.id = id;
@@ -18,6 +19,7 @@ class Book {
         this.favorite = favorite;
         this.fileCover = fileCover;
         this.fileName = fileName;
+        this.fileBook = fileBook;
     }
 }
 
