@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const {Books} = require('../models/book');
+const {Books} = require("../../models/book");
+const fileMiddleware = require("../../middleware/file");
+const path = require("path");
+
+
+const registerResponse = { id: 1, mail: "test@mail.ru" };
 
 const store = {
     books: []
@@ -13,7 +18,7 @@ numbers.map(el => {
         `book ${el}`,
         `desc book ${el}`,
         `author book ${el}`,
-        `favorite book ${el}`,
+        `author book ${el}`,
         `author book ${el}` ,
         `author book ${el}`,
         ''
@@ -21,19 +26,21 @@ numbers.map(el => {
     store.books.push(newBook);
 });
 
-router.get('/', (req, res) => {
-    const {books} = store;
-    res.render('books/index', {
-        title: "Books",
-        books: books,
-    });
+router.post('/login', (req, res) => {
+    res.status(201);
+    res.json(registerResponse)
 });
 
-router.get('/create', (req, res) => {
-    res.render("books/create", {
-        title: "book | create",
-        book: {},
-    });
+
+router.get('/', (req,res) => {
+    const {books} = store;
+    if(books) {
+        res.status(201);
+        res.json(books)
+    } else {
+        res.status(404);
+        res.json("book | not found");
+    }
 });
 
 router.get('/:id', (req,res) => {
@@ -42,43 +49,25 @@ router.get('/:id', (req,res) => {
     const foundedBook = books.find((item) => item.id === id);
     if(foundedBook) {
         res.status(201);
-        res.render('books/view', {
-            title: foundedBook.title,
-            book: foundedBook
-        })
+        res.json(foundedBook)
     } else {
         res.status(404);
         res.json("book | not found");
     }
 });
 
-router.post('/create',(req, res) => {
+router.post('/', fileMiddleware.single('bookFile'),(req, res) => {
+    const {path} = req.file;
     const {books} = store;
-    const {title, description, authors, favorite, fileCover, fileName} = req.body;
-    const newBook = new Books(title, description, authors, favorite, fileCover, fileName);
+    const {title, description, authors, favorite, fileCover, fileName, fileBook = path} = req.body;
+    const newBook = new BooksApi(title, description, authors, favorite, fileCover, fileName, fileBook);
     books.push(newBook);
 
     res.status(201);
-    res.redirect('/books')
+    res.json(newBook);
 });
 
-router.get('/update/:id', (req, res) => {
-    const {books} = store;
-    const {id} = req.params;
-    const idx = books.findIndex(el => el.id === id);
-
-    if (idx !== -1) {
-        res.render("books/update", {
-            title: "Books | update",
-            book: books[idx],
-        });
-    } else {
-        res.status(404);
-        res.json("book | not found");
-    }
-});
-
-router.post('/update/:id',  (req,res) => {
+router.put('/:id',  (req,res) => {
     const {books} = store;
     const {title, description, authors, favorite, fileCover, fileName, fileBook} = req.body;
     const {id} = req.params;
@@ -95,26 +84,39 @@ router.post('/update/:id',  (req,res) => {
             fileBook
         }
         res.status(201);
-        res.redirect('/books')
+        res.json(books[idx]);
     } else {
         res.status(404);
         res.json("book | not found");
     }
 });
 
-router.post('/delete/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     const {books} = store;
     const {id} = req.params;
     const idx = books.findIndex(el => el.id === id);
 
     if (idx !== -1) {
         books.splice(idx, 1);
-        res.redirect(`/books`);
+        res.json(true);
     } else {
         res.status(404);
-        console.log('animal')
         res.json("book | not found");
     }
 });
 
+router.get('/:id/download-book', (req, res) => {
+    const {books} = store;
+    const {id} = req.params;
+    const book = books.find(el => el.id === id);
+    const file = book.fileBook;
+    const bookPath = path.join(__dirname, '../', file);
+    res.download(bookPath,  err=>{
+        if (err){
+            res.status(404).json();
+        }
+        res.status(201);
+    });
+});
 module.exports = router;
+
