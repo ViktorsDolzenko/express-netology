@@ -1,0 +1,41 @@
+Dandv@Danielas-MacBook-Air Desktop % docker pull node:15.14\
+15.14: Pulling from library/node\
+41f38ce3010a: Pull complete\
+ce440adabe2a: Pull complete\
+b7c0a158e8c1: Pull complete\
+d82fbf846f6f: Pull complete\
+c190b75eb2b4: Pull complete\
+1ce0b6aec0ac: Pull complete\
+d461dd6a01f5: Pull complete\
+860542326137: Pull complete\
+fba155217a46: Pull complete\
+Digest: sha256:608bba799613b1ebf754034ae008849ba51e88b23271412427b76d60ae0d0627\
+Status: Downloaded newer image for node:15.14\
+docker.io/library/node:15.14\
+dandv@Danielas-MacBook-Air Desktop % docker run -it --env NAME=VIKTOR --env SURENAME=DOLZENKO --name mynode node:15.14\
+Welcome to Node.js v15.14.0.\
+Type ".help" for more information.\
+> console.log(`\uc0\u1055 \u1088 \u1080 \u1074 \u1077 \u1090  $\{process.env.NAME\} $\{process.env.SURENAME\}!`)\
+\uc0\u1055 \u1088 \u1080 \u1074 \u1077 \u1090  VIKTOR DOLZENKO!\
+undefined\
+> docker stop mynode\
+docker stop mynode\
+       ^^^^\
+\
+Uncaught SyntaxError: Unexpected identifier\
+> docker ls\
+docker ls\
+       ^^\
+\
+Uncaught SyntaxError: Unexpected identifier\
+>\
+(To exit, press Ctrl+C again or Ctrl+D or type .exit)\
+>\
+dandv@Danielas-MacBook-Air Desktop % docker stop mynode\
+mynode\
+dandv@Danielas-MacBook-Air Desktop % docker rm --force node:15.14\
+Error: No such container: node:15.14\
+dandv@Danielas-MacBook-Air Desktop % docker rmi --force node:15.14\
+Untagged: node:15.14\
+Untagged: node@sha256:608bba799613b1ebf754034ae008849ba51e88b23271412427b76d60ae0d0627\
+Deleted: sha256:c9b1cc6b53791ec5df6210b2d454d12b7a2f181f0a6b0e8f1210c8386473eba7\
