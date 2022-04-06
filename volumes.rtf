@@ -1,0 +1,13 @@
+docker run -v /Users/dandv/Desktop/express-netology/data:/var/first/data -it --name first_node node:15.14\
+docker run -v /Users/dandv/Desktop/express-netology/data:/var/second/data -it --name second_node node:15.14\
+docker exec -it first_node sh\
+cd var/first/data\
+touch test.txt\
+ls\
+docker exec -it second_node sh\
+cd var/second/data\
+ls\
+docker stop first_node\
+docker stop second_node\
+docker rm first_node\
+docker rm second_node}
