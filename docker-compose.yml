@@ -1,0 +1,46 @@
+networks:
+  mynet:
+    driver: bridge
+
+#counter
+services:
+  storage:
+    image: redis
+    networks:
+      - mynet
+  counter:
+    container_name: counter
+    environment:
+      - PORT=5432
+      - REDIS_URL=redis://storage
+    build: counter
+    restart: unless-stopped
+    working_dir: /app/counter
+    command: bash -c "npm install && npm start"
+    ports:
+      - "5432:5432"
+    depends_on:
+      - storage
+    volumes:
+      - ./app
+    networks:
+      - mynet
+  #main
+  main:
+    build:
+      context: main
+      dockerfile: Dockerfile
+    image: node:15.6
+    container_name: main
+    restart: unless-stopped
+    tty: true
+    environment:
+      - PORT=3000
+    working_dir: /app/main
+    command: bash -c "npm install && npm run dev"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./main:/app/main
+    networks:
+      - mynet
