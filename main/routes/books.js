@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const fetch = (url) => import('node-fetch').then(({default: fetch}) => fetch(url));
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {Books} = require('../models/book');
 
 const store = {
@@ -47,15 +47,13 @@ router.get('/:id',  async (req,res) => {
         res.status(201);
             const requestOptions = {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
             };
            const rawResponse = await fetch(`http://counter:5432/counter/${id}/incr`, requestOptions);
-           const content = await rawResponse;
-           console.log(content)
+           const content = await rawResponse.json();
             res.render('books/view', {
                 title: foundedBook.title,
                 book: foundedBook,
-                count: 0
+                count: content
             })
     } else {
         res.status(404);
