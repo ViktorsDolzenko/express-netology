@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {Books} = require('../models/book');
 
 const store = {
@@ -7,6 +8,8 @@ const store = {
 };
 
 const numbers = [1, 2, 3];
+
+const serviceCounter = express();
 
 numbers.map(el => {
     const newBook = new Books(
@@ -36,16 +39,22 @@ router.get('/create', (req, res) => {
     });
 });
 
-router.get('/:id', (req,res) => {
+router.get('/:id',  async (req,res) => {
     const {books} = store;
     const {id} = req.params;
     const foundedBook = books.find((item) => item.id === id);
     if(foundedBook) {
         res.status(201);
-        res.render('books/view', {
-            title: foundedBook.title,
-            book: foundedBook
-        })
+            const requestOptions = {
+                method: 'POST',
+            };
+           const rawResponse = await fetch(`http://counter:5432/counter/${id}/incr`, requestOptions);
+           const content = await rawResponse.json();
+            res.render('books/view', {
+                title: foundedBook.title,
+                book: foundedBook,
+                count: content
+            })
     } else {
         res.status(404);
         res.json("book | not found");
