@@ -13,14 +13,13 @@ await db.collection('books').insertMany([
   description: 'desc2',
   authors: 'author2'
  }
-]);
+]); // add
 
 
-await db.collection('books').find({ title: bookTitle });
+await db.collection('books').find({ title: bookTitle }); // find
 
 
 await db.collection('books')
                .updateOne(
                   { "_id": id}, // Filter
-                  {$set: {authors: author, description: desc}}, // Update
-             )
+                  {$set: {authors: author, description: desc}})  // Update
