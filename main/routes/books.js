@@ -1,31 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const {Books} = require('../models/book');
+const Book = require('../models/book');
 
-const store = {
-    books: []
-};
-
-const numbers = [1, 2, 3];
-
-const serviceCounter = express();
-
-numbers.map(el => {
-    const newBook = new Books(
-        `book ${el}`,
-        `desc book ${el}`,
-        `author book ${el}`,
-        `favorite book ${el}`,
-        `author book ${el}` ,
-        `author book ${el}`,
-        ''
-    );
-    store.books.push(newBook);
-});
-
-router.get('/', (req, res) => {
-    const {books} = store;
+router.get('/', async (req, res) => {
+    const books = await Book.find();
     res.render('books/index', {
         title: "Books",
         books: books,
@@ -40,20 +18,13 @@ router.get('/create', (req, res) => {
 });
 
 router.get('/:id',  async (req,res) => {
-    const {books} = store;
     const {id} = req.params;
-    const foundedBook = books.find((item) => item.id === id);
-    if(foundedBook) {
+    const book = await Book.findById(id)
+    if(book) {
         res.status(201);
-            const requestOptions = {
-                method: 'POST',
-            };
-           const rawResponse = await fetch(`http://counter:5432/counter/${id}/incr`, requestOptions);
-           const content = await rawResponse.json();
             res.render('books/view', {
-                title: foundedBook.title,
-                book: foundedBook,
-                count: content
+                title: book.title,
+                book: book,
             })
     } else {
         res.status(404);
@@ -61,25 +32,28 @@ router.get('/:id',  async (req,res) => {
     }
 });
 
-router.post('/create',(req, res) => {
-    const {books} = store;
+router.post('/create',async (req, res) => {
     const {title, description, authors, favorite, fileCover, fileName} = req.body;
-    const newBook = new Books(title, description, authors, favorite, fileCover, fileName);
-    books.push(newBook);
+    const newBook = new Book({title, description, authors, favorite, fileCover, fileName});
+
+    try {
+        await newBook.save();
+    } catch (e) {
+        console.error(e);
+    }
 
     res.status(201);
     res.redirect('/books')
 });
 
-router.get('/update/:id', (req, res) => {
-    const {books} = store;
+router.get('/update/:id', async (req, res) => {
     const {id} = req.params;
-    const idx = books.findIndex(el => el.id === id);
+    const book = await Book.findById(id)
 
-    if (idx !== -1) {
+    if (book) {
         res.render("books/update", {
             title: "Books | update",
-            book: books[idx],
+            book: book,
         });
     } else {
         res.status(404);
@@ -87,42 +61,29 @@ router.get('/update/:id', (req, res) => {
     }
 });
 
-router.post('/update/:id',  (req,res) => {
-    const {books} = store;
+router.post('/update/:id',  async (req,res) => {
     const {title, description, authors, favorite, fileCover, fileName, fileBook} = req.body;
     const {id} = req.params;
-    const idx = books.findIndex(el => el.id === id);
-    if (idx !== -1) {
-        books[idx] = {
-            ...books[idx],
-            title,
-            description,
-            authors,
-            favorite,
-            fileCover,
-            fileName,
-            fileBook
-        }
+    try {
+        await Book.findByIdAndUpdate(id, {title, description, authors, favorite, fileCover, fileName, fileBook});
         res.status(201);
         res.redirect('/books')
-    } else {
+    } catch (e) {
+        console.error(e)
         res.status(404);
         res.json("book | not found");
     }
 });
 
-router.post('/delete/:id', (req, res) => {
-    const {books} = store;
+router.post('/delete/:id', async (req, res) => {
     const {id} = req.params;
-    const idx = books.findIndex(el => el.id === id);
-
-    if (idx !== -1) {
-        books.splice(idx, 1);
-        res.redirect(`/books`);
-    } else {
+    try {
+        await Book.deleteOne({_id: id})
+        res.status(200);
+        res.redirect('/books')
+    } catch (e) {
+        console.error(e);
         res.status(404);
-        console.log('animal')
-        res.json("book | not found");
     }
 });
 

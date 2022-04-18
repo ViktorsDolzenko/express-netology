@@ -1,24 +1,4 @@
-
-#counter
 services:
-  storage:
-    image: redis
-    command: redis-server
-    volumes:
-    - redis-data:/data
-    - redis-conf:/usr/local/etc/redis/redis.conf
-  counter:
-    container_name: counter
-    environment:
-      - PORT=5432
-      - REDIS_URL=redis://storage
-    build: counter
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    depends_on:
-      - storage
-  #main
   main:
     build:
       context: main
@@ -28,11 +8,11 @@ services:
     tty: true
     environment:
       - PORT=3000
+    env_file:
+      - .atlas.env
     working_dir: /app/main
     ports:
       - "3000:3000"
     volumes:
       - ./main:/app/main
-volumes:
-  redis-data:
-  redis-conf:
+

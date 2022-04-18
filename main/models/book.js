@@ -1,26 +1,24 @@
-const { v4: uuidv4 } = require('uuid');
-
-
-class Book {
-    constructor(
-                    title = "",
-                    description= "",
-                    authors= "",
-                    favorite= "",
-                    fileCover= "",
-                    fileName= "",
-                    fileBook= "",
-                    id=  uuidv4(),
-                ) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.authors = authors;
-        this.favorite = favorite;
-        this.fileCover = fileCover;
-        this.fileName = fileName;
-        this.fileBook = fileBook;
+const {Schema, model} = require('mongoose');
+const bookSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+    },
+    authors: {
+        type: String,
+    },
+    favorite: {
+        type: String,
+    },
+    fileCover: {
+        type: String,
+    },
+    fileName: {
+        type: String
     }
-}
+})
 
-module.exports = {Books: Book};
+module.exports = model('Book', bookSchema);
