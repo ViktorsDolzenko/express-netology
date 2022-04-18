@@ -1,17 +1,16 @@
 <%- include("../layout/layout-start", {title: title}) %>
 <%- include("../layout/menu") %>
 <h1><%= title %></h1>
-<h2><%= count %></h2>
 
 <div class="row">
     <div class="col-sm-8">
         <div class="card">
             <div class="card-body">
 
-                <h5 class="card-title"><%= book.title %></h5>
-                <p class="card-text"><%= book.description %>.</p>
-                <p class="card-text"><%= book.authors %>.</p>
-                <p class="card-text"><%= book.favorite %></p>
+                <h5 class="card-title">Title: <%= book.title %></h5>
+                <p class="card-text">Description: <%= book.description %></p>
+                <p class="card-text">Authors: <%= book.authors %></p>
+                <p class="card-text">Favorite: <%= book.favorite %></p>
 
                 <div class="text-right">
                     <a class="btn btn-sm btn-primary" href="/books/update/<%= book.id %>">
