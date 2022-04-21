@@ -8,7 +8,7 @@ const path = require("path");
 const registerResponse = { id: 1, mail: "test@mail.ru" };
 
 
-router.post('/login', (req, res) => {
+router.post('/auth', (req, res) => {
     res.status(201);
     res.json(registerResponse)
 });

@@ -3,19 +3,66 @@ const bodyParser = require("body-parser");
 const indexRouter = require('./routes');
 const booksRouter = require('./routes/books');
 const booksApiRouter = require('./routes/api/books-api');
+const authRouter = require('./routes/user')
 const mongoose = require('mongoose');
+const passport = require("passport");
+const localStrategy = require('passport-local').Strategy;
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const User = require('./models/user');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.set("view engine", "ejs");
+app.use(session({
+    secret: "verygoodsecret",
+    resave: false,
+    saveUninitialized: true
+}));
 
+// Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
 
+passport.serializeUser(function (user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+    User.findById(id, function (err, user) {
+        done(err, user);
+    });
+});
+
+passport.use(new localStrategy(function (username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
+        if (err) return done(err);
+        if (!user) return done(null, false, { message: 'Incorrect username.' });
+
+        bcrypt.compare(password, user.password, function (err, res) {
+            if (err) return done(err);
+            if (res === false) return done(null, false, { message: 'Incorrect password.' });
+
+            return done(null, user);
+        });
+    });
+}));
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) return next();
+    res.redirect('/api/auth');
+}
+app.use('/api/auth', authRouter);
+app.use(isLoggedIn);
 app.use('/public', express.static(__dirname+"/public"));
 app.use('/', indexRouter);
 app.use('/books', booksRouter);
 app.use('/api/books', booksApiRouter);
+
 
 const PORT = process.env.PORT || 3000;
 const UserDB = process.env.DB_USERNAME;
