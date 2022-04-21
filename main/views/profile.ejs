@@ -1,0 +1,10 @@
+<%- include("./layout/layout-start", {title: title}) %>
+<%- include("./layout/menu") %>
+<h1><%= title %></h1>
+
+<div class="column">
+    <h1>Username: <%= user.username %></h1>
+    <a href="/api/auth/logout">Sign Out</a>
+</div>
+
+<%- include("./layout/layout-end") %>
