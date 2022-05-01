@@ -11,8 +11,11 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const User = require('./models/user');
 const bcrypt = require('bcrypt');
-
+const { Server } = require("socket.io");
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -79,7 +82,19 @@ async function start() {
             useUnifiedTopology: true
         });
 
-        app.listen(PORT, () => {
+        io.on('connection', (socket) => {
+            console.log('a user connected');
+            socket.on('chat message', (msg, room) => {
+                socket.to(room).emit('receive message', msg);
+                socket.emit('receive message', msg);
+            });
+            socket.on('join-room', room => {
+                socket.join(room);
+            })
+        });
+
+
+        server.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         })
     } catch (e) {

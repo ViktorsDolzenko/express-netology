@@ -2,7 +2,7 @@
 <%- include("../layout/menu") %>
 <h1><%= title %></h1>
 
-<div class="row">
+<div class="row" id="mydiv" data-test=<%= book.id %>>
     <div class="col-sm-8">
         <div class="card">
             <div class="card-body">
@@ -24,8 +24,38 @@
                 </div>
 
             </div>
+            <div style="height: 500px; background: bisque ">
+            <ul id="messages"></ul>
+            </div>
+            <form style="width: 100%" id="form" action="">
+                <input id="input" autocomplete="off" style="width: 90%"  /><button style="width: 10%" >Send</button>
+            </form>
         </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const room = document.getElementById('mydiv').dataset.test
+        socket.emit('join-room', room)
+        const messages = document.getElementById('messages');
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value, room);
+                input.value = '';
+            }
+        });
+
+        socket.on('receive message', function(msg) {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
 </div>
 
 <%- include("../layout/layout-end") %>
